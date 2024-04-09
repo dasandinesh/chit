@@ -1,0 +1,183 @@
+// Chit.js
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { chitdue_amount_update_url, dueamountunwind_url } from "./url/url";
+import "./chit.css"; // Import CSS file for styling
+
+const Chit = () => {
+  const [PaidAmount, SetPaidAmount] = useState("");
+  const [chitduememberlist, setChitduememberlist] = useState([]);
+  const [filteredChitduememberlist, setFilteredChitduememberlist] = useState(
+    []
+  );
+  const [filters, setFilters] = useState({
+    name: "",
+    chitName: "",
+    date: "",
+    pendingFlag: "",
+    chitList: "", // New filter for Chit List
+  });
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    getchitduememberlist();
+  }, []);
+
+  useEffect(() => {
+    getchitduememberlist();
+    applyFilters();
+  }, [chitduememberlist, filters]);
+
+  const getchitduememberlist = async () => {
+    try {
+      const response = await axios.get(dueamountunwind_url);
+      setChitduememberlist(response.data);
+    } catch (error) {
+      console.error("Error fetching chit master list:", error);
+    }
+  };
+
+  const applyFilters = () => {
+    let filteredList = chitduememberlist.filter((member) => {
+      return (
+        member.member.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+        member.chit_name
+          .toLowerCase()
+          .includes(filters.chitName.toLowerCase()) &&
+        member.date.includes(filters.date) &&
+        member.chit_list
+          .toLowerCase()
+          .includes(filters.chitList.toLowerCase()) && // Filter by Chit List
+        (filters.pendingFlag === "" ||
+          member.member.pending_flag === (filters.pendingFlag === "Yes"))
+      );
+    });
+    setFilteredChitduememberlist(filteredList);
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({ ...filters, [name]: value });
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const payload = {
+        id: selectedMember._id,
+        amount: PaidAmount,
+        memberId: selectedMember.member.member_id,
+      };
+      const response = await axios.post(chitdue_amount_update_url, payload);
+      console.log(response.data); // Log the response from the serverless function
+      // Close modal after successful update
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error updating member:", error);
+    }
+  };
+
+  const openModal = (member) => {
+    setSelectedMember(member);
+    setShowModal(true);
+  };
+
+  return (
+    <div>
+      <h5>Due List</h5>
+      <div>
+        {/* Filter inputs */}
+        <input
+          type="text"
+          name="name"
+          placeholder="Filter by Name"
+          value={filters.name}
+          onChange={handleFilterChange}
+        />
+        <input
+          type="text"
+          name="chitName"
+          placeholder="Filter by Chit Name"
+          value={filters.chitName}
+          onChange={handleFilterChange}
+        />
+        <input
+          type="text"
+          name="chitList"
+          placeholder="Filter by Chit List"
+          value={filters.chitList}
+          onChange={handleFilterChange}
+        />
+        <input
+          type="date"
+          name="date"
+          placeholder="Filter by Date"
+          onChange={handleFilterChange}
+        />
+        <select
+          name="pendingFlag"
+          onChange={handleFilterChange}
+          value={filters.pendingFlag}
+        >
+          <option value="">All</option>
+          <option value="Yes">Pending</option>
+          <option value="No">Not Pending</option>
+        </select>
+      </div>
+      <table className="table-wrapper">
+        <thead>
+          <tr>
+            <th>Member Name</th>
+            <th>Chit Name</th>
+            <th>Chit List</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Due Amount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredChitduememberlist
+            .slice()
+            .reverse()
+            .map((member, index) => (
+              <tr key={index}>
+                <td>{member.member.name}</td>
+                <td>{member.chit_name}</td>
+                <td>{member.chit_list}</td>
+                <td>{member.date}</td>
+                <td>{member.amount}</td>
+                <td>{member.member.due_amount}</td>
+                <td>
+                  {member.member.due_amount === "" ? (
+                    <button onClick={() => openModal(member)}>Pay</button>
+                  ) : (
+                    <span>No Payment Due</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Pay Amount</h2>
+            <input
+              type="text"
+              value={PaidAmount}
+              onChange={(e) => SetPaidAmount(e.target.value)}
+              readOnly={selectedMember?.member.due_amount ? true : false}
+            />
+            <button onClick={handleUpdate}>Update</button>
+            <button onClick={() => setShowModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Chit;
