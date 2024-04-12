@@ -39,11 +39,11 @@ const Coustomer = () => {
     } catch (error) {
       console.error("Error fetching customer list:", error);
     }
-    const data = {
-      name: "",
-      phone: "",
-      pending_flag: "",
-    };
+    // const data = {
+    //   name: "",
+    //   phone: "",
+    //   pending_flag: "",
+    // };
   };
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { chitdue_amount_update_url, dueamountunwind_url } from "./url/url";
 import ReactPaginate from "react-paginate";
@@ -8,8 +8,6 @@ const Chit = () => {
   const [PaidAmount, SetPaidAmount] = useState("");
   const [oldPaidAmount, SetoldPaidAmount] = useState("");
   const [chitduememberlist, setChitduememberlist] = useState([]);
-  const [totallpaid, settotallpaid] = useState("");
-  const [selectedOption, setSelectedOption] = useState("paid");
   const [pendingAmount, SetpendingAmount] = useState("");
   const [oldpendingAmount, SetoldpendingAmount] = useState("");
   const [filteredChitduememberlist, setFilteredChitduememberlist] = useState(
@@ -25,11 +23,33 @@ const Chit = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [pageNumber, setPageNumber] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(500);
+  const [itemsPerPage] = useState(500); // Removed unused state
   const [todaydate, settodaydate] = useState("");
   const [selecttodaydate, setselecttodaydate] = useState("");
-  const [totalPaidAmount, setTotalPaidAmount] = useState(0); // Total paid amount state
-  const [totalPendingAmount, setTotalPendingAmount] = useState(0); // Total pending amount state
+  const [totalPaidAmount, setTotalPaidAmount] = useState(0);
+  const [totalPendingAmount, setTotalPendingAmount] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(""); // Define selectedOption state variable
+
+  const applyFilters = useCallback(() => {
+    let filteredList = chitduememberlist.filter((member) => {
+      return (
+        member.member.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+        member.chit_name
+          .toLowerCase()
+          .includes(filters.chitName.toLowerCase()) &&
+        member.date.includes(filters.date) &&
+        member.chit_list
+          .toLowerCase()
+          .includes(filters.chitList.toLowerCase()) &&
+        (filters.paidStatus.length > 0
+          ? filters.paidStatus === "paid"
+            ? member.member.paidStatus === "paid"
+            : member.member.paidStatus !== "paid"
+          : true)
+      );
+    });
+    setFilteredChitduememberlist(filteredList);
+  }, [chitduememberlist, filters]);
 
   useEffect(() => {
     getchitduememberlist();
@@ -40,10 +60,9 @@ const Chit = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [chitduememberlist, filters]);
+  }, [applyFilters]);
 
   useEffect(() => {
-    // Calculate total paid amount and total pending amount
     let totalPaid = 0;
     let totalPending = 0;
     filteredChitduememberlist.forEach((member) => {
@@ -63,27 +82,6 @@ const Chit = () => {
     }
   };
 
-  const applyFilters = () => {
-    let filteredList = chitduememberlist.filter((member) => {
-      return (
-        member.member.name.toLowerCase().includes(filters.name.toLowerCase()) &&
-        member.chit_name
-          .toLowerCase()
-          .includes(filters.chitName.toLowerCase()) &&
-        member.date.includes(filters.date) &&
-        member.chit_list
-          .toLowerCase()
-          .includes(filters.chitList.toLowerCase()) &&
-        (filters.paidStatus.length > 0
-          ? filters.paidStatus === "paid"
-            ? member.member.paidStatus === "paid"
-            : member.member.paidStatus !== "paid"
-          : true)
-      );
-    });
-    setFilteredChitduememberlist(filteredList);
-  };
-
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
@@ -91,7 +89,6 @@ const Chit = () => {
 
   const handleUpdate = async () => {
     const totallpaid = parseFloat(oldPaidAmount) + parseFloat(PaidAmount);
-    settotallpaid(totallpaid);
     console.log(totallpaid);
     try {
       const payload = {
@@ -138,7 +135,6 @@ const Chit = () => {
     const pending = oldpendingAmount - e;
     SetpendingAmount(pending);
   };
-
   return (
     <div>
       <h5>Due List</h5>

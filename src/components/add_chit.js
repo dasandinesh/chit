@@ -80,7 +80,7 @@ const Add_chit = () => {
   };
 
   const customerListId = (index) => `customer-list-${index}`;
-  const chitListId = (index) => `chit-list-${index}`;
+  // const chitListId = (index) => `chit-list-${index}`;
 
   const onAddProduct = () => {
     append({ name: "", member_id: "" }); // Add member_id as well

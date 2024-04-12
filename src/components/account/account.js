@@ -48,35 +48,32 @@ const Accountdata = () => {
       console.error("Error fetching data:", error);
     }
   };
-  useEffect(() => {
-    applyFilters();
-  }, [chitData, filters]);
-
-  const applyFilters = () => {
-    const filteredData = chitData.filter((chit) => {
-      return (
-        (filters.memberName === "" ||
-          chit.memberName
-            .toLowerCase()
-            .includes(filters.memberName.toLowerCase())) &&
-        (filters.fromDate === "" ||
-          new Date(chit.date) >= new Date(filters.fromDate)) &&
-        (filters.toDate === "" ||
-          new Date(chit.date) <= new Date(filters.toDate)) &&
-        (filters.minCredit === "" ||
-          parseFloat(chit.credit) >= parseFloat(filters.minCredit)) &&
-        (filters.maxCredit === "" ||
-          parseFloat(chit.credit) <= parseFloat(filters.maxCredit)) &&
-        (filters.minDebit === "" ||
-          parseFloat(chit.debit) >= parseFloat(filters.minDebit)) &&
-        (filters.maxDebit === "" ||
-          parseFloat(chit.debit) <= parseFloat(filters.maxDebit))
-      );
-    });
-    setFilteredChitData(filteredData);
-  };
 
   useEffect(() => {
+    const applyFilters = () => {
+      const filteredData = chitData.filter((chit) => {
+        return (
+          (filters.memberName === "" ||
+            chit.memberName
+              .toLowerCase()
+              .includes(filters.memberName.toLowerCase())) &&
+          (filters.fromDate === "" ||
+            new Date(chit.date) >= new Date(filters.fromDate)) &&
+          (filters.toDate === "" ||
+            new Date(chit.date) <= new Date(filters.toDate)) &&
+          (filters.minCredit === "" ||
+            parseFloat(chit.credit) >= parseFloat(filters.minCredit)) &&
+          (filters.maxCredit === "" ||
+            parseFloat(chit.credit) <= parseFloat(filters.maxCredit)) &&
+          (filters.minDebit === "" ||
+            parseFloat(chit.debit) >= parseFloat(filters.minDebit)) &&
+          (filters.maxDebit === "" ||
+            parseFloat(chit.debit) <= parseFloat(filters.maxDebit))
+        );
+      });
+      setFilteredChitData(filteredData);
+    };
+
     applyFilters();
   }, [chitData, filters]);
 
