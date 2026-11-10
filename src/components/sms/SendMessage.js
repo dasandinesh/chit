@@ -28,14 +28,19 @@ const SendMessage = () => {
   };
 
   return (
-    <div>
+    <div className="message-page">
+      <h2>Send Message</h2>
+      <label htmlFor="message-phone">Phone Number</label>
       <input
-        type="text"
+        id="message-phone"
+        type="tel"
         placeholder="Phone Number"
         value={phoneNumber}
         onChange={(e) => setPhoneNumber(e.target.value)}
       />
+      <label htmlFor="message-text">Message</label>
       <input
+        id="message-text"
         type="text"
         placeholder="Message"
         value={message}

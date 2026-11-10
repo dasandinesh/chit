@@ -1,0 +1,177 @@
+/* Desktop and tablet: keep wide tables inside their own scrolling region. */
+.app-shell, .app-content, .paginated-list, .modal-body, .row > *, .page-toolbar > * { min-width: 0; }
+.responsive-table-wrap { max-width: 100%; min-width: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.responsive-records td { overflow-wrap: anywhere; }
+.filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.filter-grid input, .filter-grid select { width: 100%; min-width: 0; }
+.due-totals { display: flex; flex-wrap: wrap; gap: 12px 24px; padding: 12px; background: #f3f6fc; border-radius: 6px; font-weight: 600; }
+.due-totals p { margin: 0; }
+.message-page > input { display: block; width: min(100%, 560px); margin-bottom: 14px; }
+.record-metadata, .form-error, .success-notice, .receipt-notice { overflow-wrap: anywhere; }
+.table-actions > button { flex-shrink: 0; }
+.table-actions > a.btn { flex-shrink: 0; text-decoration: none; }
+.page-toolbar.customer-toolbar { flex-wrap: nowrap; align-items: center; }
+.customer-toolbar > h2 { flex: 1; margin: 0; }
+.page-toolbar.customer-toolbar > button { width: auto; flex: 0 0 auto; }
+.filter-grid.customer-filter-row { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 10px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+.customer-filter-row > div { flex: 1 0 160px; min-width: 160px; }
+.customer-filter-row > button { flex: 0 0 auto; }
+.page-toolbar.compact-toolbar { flex-wrap: nowrap; align-items: center; }
+.compact-toolbar > div { flex: 1 1 auto; }
+.page-toolbar.compact-toolbar > button { width: auto; flex: 0 0 auto; }
+.filter-grid.compact-filter-row { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 10px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+.compact-filter-row > div { flex: 1 0 160px; min-width: 160px; }
+.row-records { white-space: nowrap; }
+.row-records td { overflow-wrap: normal; }
+.row-records .table-actions, .row-records .reminder-actions { flex-wrap: nowrap; }
+.pagination-footer { display: none; }
+.pagination-footer:not(:empty) { display: block; padding: 8px 20px; border-top: 1px solid var(--line); background: white; }
+.pagination-footer .list-pagination { max-width: 1400px; margin: 0 auto; }
+
+@media (max-width: 991px) {
+  .app-navbar .navbar-collapse { padding-top: 10px; }
+  .app-navbar .navbar-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; padding-bottom: 4px; }
+  .app-navbar .nav-link { display: flex; align-items: center; min-height: 44px; }
+  .app-navbar .navbar-toggler { min-width: 44px; min-height: 44px; }
+  .app-navbar .navbar-brand { margin-right: 0; }
+  .account-summary { row-gap: 10px; }
+}
+
+@media (max-width: 767px) {
+  .app-content { padding: 10px 8px 18px; }
+  .app-content > div, .app-content > .container { padding: 12px; }
+  body { font-size: 14px; }
+  h1 { font-size: 24px; } h2 { font-size: 20px; }
+  button, .btn, td button, td .btn, .modal-content button { min-height: 44px; padding: 9px 12px; font-size: 13px; touch-action: manipulation; }
+  input:not([type="checkbox"]):not([type="hidden"]), select, textarea, .form-control, .form-select, td input:not([type="hidden"]), td select {
+    min-height: 44px; min-width: 0; font-size: 16px; padding: 9px 10px;
+  }
+  input[type="checkbox"] { width: 20px; height: 20px; margin: 8px; }
+  .page-toolbar { align-items: stretch; gap: 12px; margin-bottom: 14px; }
+  .page-toolbar > div { flex: 1 1 100%; }
+  .page-toolbar > button { width: 100%; }
+  .page-toolbar.customer-toolbar { gap: 6px; margin-bottom: 7px; padding-bottom: 6px; }
+  .customer-toolbar > h2 { font-size: 15px; line-height: 1.2; }
+  .page-toolbar.customer-toolbar > button { min-height: 28px; height: 28px; padding: 3px 8px; font-size: 11px; line-height: 1.2; border-radius: 4px; }
+  .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .filter-grid > div:first-child:last-child { grid-column: 1 / -1; }
+  .customer-filters .customer-filter-row { gap: 6px; margin-bottom: 4px; padding-bottom: 4px; }
+  .customer-filter-row > div { flex: 0 0 116px; min-width: 116px; }
+  .customer-filter-row label { margin-bottom: 2px; font-size: 10px; line-height: 1.2; }
+  .customer-filters .customer-filter-row input, .customer-filters .customer-filter-row select { min-height: 28px; height: 28px; padding: 3px 6px; font-size: 12px; line-height: 1.2; border-radius: 4px; }
+  .customer-filter-row > button { min-height: 28px; height: 28px; padding: 3px 7px; font-size: 10px; }
+  .customer-filter-summary { gap: 2px; margin-bottom: 3px; }
+  .customer-filter-summary p { font-size: 10px; line-height: 1.3; }
+  .customer-filter-summary strong { font-size: 11px; }
+  .customer-filters > .form-hint { margin: 0 0 6px; font-size: 9px; line-height: 1.35; }
+  .page-toolbar.compact-toolbar { gap: 6px; margin-bottom: 7px; padding-bottom: 6px; }
+  .compact-toolbar > div { flex: 1 1 auto; }
+  .compact-toolbar h2, .compact-section-title { font-size: 15px; line-height: 1.2; margin: 0; }
+  .compact-section-title { margin-bottom: 6px; }
+  .compact-toolbar p { display: none; }
+  .page-toolbar.compact-toolbar > button { min-height: 28px; height: 28px; padding: 3px 8px; font-size: 11px; line-height: 1.2; }
+  .filter-grid.compact-filter-row, .installment-create-form.compact-installment-form { display: flex; flex-wrap: nowrap; align-items: flex-end; gap: 6px; overflow-x: auto; margin-bottom: 4px; padding-bottom: 4px; }
+  .compact-filter-row > div, .compact-installment-form > div { flex: 0 0 116px; min-width: 116px; }
+  .compact-filter-row label, .compact-installment-form label, .compact-record-filter label { margin-bottom: 2px; font-size: 10px; line-height: 1.2; }
+  .compact-filter-row input:not([type="hidden"]), .compact-filter-row select,
+  .compact-installment-form input:not([type="hidden"]), .compact-installment-form select,
+  .compact-record-filter select { min-height: 28px; height: 28px; padding: 3px 6px; font-size: 12px; line-height: 1.2; border-radius: 4px; }
+  .compact-installment-form > button { flex: 0 0 auto; min-height: 28px; height: 28px; padding: 3px 8px; font-size: 11px; }
+  .compact-record-filter { margin: 6px 0; }
+  .installment-create-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .installment-create-form > button { grid-column: 1 / -1; }
+  .record-filter select { flex: 1; }
+  .account-summary > .col { flex: 1 1 100%; width: 100%; min-width: 0; }
+  .account-summary button { width: 100%; }
+  .account-summary h4 { margin: 0; padding: 12px; border-radius: 6px; background: #f3f6fc; }
+  .compact-account-summary { flex-wrap: nowrap; overflow-x: auto; margin-top: 8px; margin-bottom: 8px; }
+  .compact-account-summary > .col { flex: 0 0 auto; width: auto; }
+  .compact-account-summary h4 { padding: 6px 8px; font-size: 11px; }
+  .compact-account-summary button { width: auto; min-height: 28px; height: 28px; padding: 3px 8px; font-size: 11px; }
+  .due-totals { padding: 6px 8px; font-size: 11px; gap: 6px 12px; }
+  .balance-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .balance-cards > div { min-width: 0; padding: 10px; }
+  .balance-cards > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .balance-cards strong { font-size: 17px; overflow-wrap: anywhere; }
+  .table-actions { gap: 8px; }
+  .table-actions > button { flex: 1 1 auto; }
+  .reminder-actions > .btn, .reminder-actions > button { flex: 1; min-height: 44px; padding: 9px 10px; font-size: 13px; }
+  .table-scroll, .responsive-table-wrap { overflow: visible; }
+  .responsive-table-wrap.keep-table-rows { overflow-x: auto; }
+  /* Customer phones show only serial number, name, total pending, actions and reminders. */
+  .customer-list-table > :is(thead, tbody) > tr > :nth-child(n + 3):nth-child(-n + 7),
+  .customer-list-table > :is(thead, tbody) > tr > :nth-child(9) { display: none; }
+  .customer-list-table .table-actions, .customer-list-table .reminder-actions { gap: 4px; }
+  .customer-list-table .table-actions > button,
+  .customer-list-table .table-actions > a.btn,
+  .customer-list-table .reminder-actions > button,
+  .customer-list-table .reminder-actions > a.btn {
+    min-height: 26px; height: 26px; padding: 3px 7px; font-size: 10px; line-height: 1.2; border-radius: 4px;
+  }
+  .compact-list-table .table-actions { gap: 4px; }
+  .compact-list-table > tbody > tr > td > button,
+  .compact-list-table > tbody > tr > td > .table-actions > button,
+  .compact-list-table > tbody > tr > td > .table-actions > a.btn {
+    min-height: 26px; height: 26px; padding: 3px 7px; font-size: 10px; line-height: 1.2; border-radius: 4px;
+  }
+
+  /* Each record becomes a labelled card; buttons and nested histories stay live. */
+  .responsive-records, .responsive-records.table { display: block; width: 100%; margin: 12px 0; border: 0; background: none; }
+  .responsive-records > thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .responsive-records > tbody { display: grid; gap: 12px; }
+  .responsive-records > tbody > tr { display: block; min-width: 0; padding: 5px 12px; background: white; border: 1px solid var(--line); border-radius: 8px; }
+  .responsive-records > tbody > tr > td { display: grid; grid-template-columns: minmax(86px, .8fr) minmax(0, 1.3fr); align-items: center; gap: 10px; width: 100%; min-width: 0; padding: 9px 0; border: 0; border-bottom: 1px solid #edf0f6; background: transparent; font-size: 13px; text-align: left; box-shadow: none; }
+  .responsive-records > tbody > tr > td::before { content: attr(data-label); font-size: 11px; color: var(--muted); font-weight: 600; }
+  .responsive-records > tbody > tr > td:last-child { border-bottom: 0; }
+  .responsive-records > tbody > tr > td[data-wide="true"] { display: block; }
+  .responsive-records > tbody > tr > td[data-wide="true"]::before { display: block; margin-bottom: 8px; }
+  .responsive-records > tbody > tr > td > * { min-width: 0; max-width: 100%; }
+  .responsive-records .responsive-records > tbody > tr { background: #f8faff; }
+  .responsive-records details > summary { min-height: 44px; padding: 10px 0; white-space: normal; }
+  .chit-master-modal input.share-payment-input { min-width: 0; max-width: 100%; }
+  .member-entry-table { table-layout: fixed; }
+  .member-entry-table td:first-child { width: auto; }
+  .member-entry-table td:last-child { width: 88px; }
+  .member-entry-table button { padding-inline: 8px; }
+  .modal-body .row > .col-6 { width: 100%; }
+
+  /* Full-screen phone dialogs, with independently scrollable content. */
+  .chit-form-modal .modal-dialog, .chit-master-modal .modal-dialog { margin: 0; padding: 0; max-width: 100%; min-height: 100%; }
+  .chit-form-modal .modal-content { display: flex; width: 100%; height: 100dvh; max-height: 100dvh; padding: 0; border: 0; border-radius: 0; overflow: hidden; }
+  .chit-form-modal .modal-content > form { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+  .chit-form-modal .modal-header { flex-shrink: 0; padding: max(12px, env(safe-area-inset-top)) 14px 12px; }
+  .chit-form-modal .modal-header h2 { font-size: 18px; }
+  .chit-form-modal .modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 14px; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+  .chit-form-modal .modal-footer { flex-shrink: 0; flex-wrap: wrap; padding: 10px 14px max(10px, env(safe-area-inset-bottom)); }
+  .chit-form-modal .modal-footer > button { flex: 1 1 auto; margin: 0; }
+  .chit-form-modal .btn-close { min-height: 44px; min-width: 44px; padding: 12px; background-size: 14px; }
+  .chit-form-modal .opening-balance-form input { width: 100% !important; }
+  .opening-balance-form > * { flex: 1 1 100%; }
+  .dialog-actions button { flex: 1; }
+  .close, .close-btn { min-height: 44px; width: 44px; height: 44px; padding: 0; }
+  .modal:not(.chit-form-modal) { padding: 10px; align-items: flex-start; }
+  .modal:not(.chit-form-modal) .modal-content { margin: auto; max-height: calc(100dvh - 20px); padding: 18px; }
+  .modal:not(.chit-form-modal) .modal-content h2 { margin-right: 42px; }
+
+  .list-pagination { width: 100%; gap: 3px; margin: 5px 0 7px; font-size: 10px; }
+  .pagination-summary { width: 100%; font-size: 10px; line-height: 1.2; }
+  .pagination-controls { display: flex; flex-wrap: nowrap; gap: 3px; width: 100%; min-width: 0; overflow-x: auto; padding-bottom: 2px; }
+  .pagination-controls label { flex: 0 0 auto; font-size: 10px; }
+  .pagination-controls select, .chit-form-modal .pagination-controls select { flex: 0 0 42px; width: 42px; min-height: 25px; height: 25px; padding: 2px; font-size: 10px; margin: 0; }
+  .pagination-controls > span { flex: 1 0 auto; align-self: center; text-align: center; white-space: nowrap; margin: 0; padding: 0 2px; font-size: 10px; }
+  .pagination-controls > button, td .pagination-controls > button, .modal-content .pagination-controls > button { flex: 0 0 auto; min-height: 25px; height: 25px; margin: 0; padding: 2px 5px; font-size: 10px; line-height: 1.2; }
+  .pagination-footer:not(:empty) { display: block; padding: 5px 12px; border-top: 1px solid var(--line); background: white; }
+  .pagination-footer .list-pagination { max-width: 1400px; margin: 0 auto; }
+  .footer-content { justify-content: center; text-align: center; padding: 16px 12px max(16px, env(safe-area-inset-bottom)); }
+  .footer-content > span { width: 100%; }
+  .message-page > button { width: 100%; }
+}
+
+@media (max-width: 575px) {
+  .filter-grid, .installment-create-form { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 374px) {
+  .responsive-records > tbody > tr { padding: 4px 9px; }
+  .responsive-records > tbody > tr > td { grid-template-columns: minmax(76px, .8fr) minmax(0, 1.2fr); gap: 8px; }
+}

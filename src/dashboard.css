@@ -1,0 +1,33 @@
+.dashboard-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.dashboard-card { display: flex; flex-direction: column; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: #f8faff; color: var(--ink); min-width: 0; }
+a.dashboard-card:hover { text-decoration: none; border-color: #afbee6; background: #f0f4ff; }
+.dashboard-card > span { font-size: 12px; color: var(--muted); }
+.dashboard-card > strong { font-size: clamp(18px, 2vw, 25px); line-height: 1.25; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.dashboard-card-emphasis { background: #edf2ff; border-color: #c8d4f7; }
+.dashboard-card-emphasis > strong { color: var(--accent); }
+.dashboard-card-collected { background: #f0f9f3; border-color: #cce4d4; }
+.dashboard-card-collected > strong { color: #277044; }
+.dashboard-shortcuts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.dashboard-shortcuts a { text-decoration: none; }
+.dashboard-panels { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.dashboard-panel { min-width: 0; }
+.dashboard-overdue { margin-top: 14px; }
+.dashboard-overdue h4 { font-size: 13px; color: #a13737; margin: 0 0 6px; }
+.dashboard-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.dashboard-section-heading h3 { font-size: 15px; margin: 0; }
+.dashboard-section-heading > a { font-size: 12px; white-space: nowrap; }
+.dashboard-empty { margin-top: 12px; padding: 16px; color: var(--muted); background: #f8faff; border: 1px dashed var(--line); border-radius: 6px; }
+.dashboard-note { margin-top: 12px; margin-bottom: 0; color: var(--muted); font-size: 11px; }
+.dashboard-customer-table .reminder-actions { flex-wrap: nowrap; }
+@media (max-width: 767px) {
+  .dashboard-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin: 10px 0; }
+  .dashboard-card { padding: 10px; gap: 5px; border-radius: 6px; }
+  .dashboard-card-emphasis { grid-column: 1 / -1; }
+  .dashboard-card > span { font-size: 10px; }
+  .dashboard-card > strong { font-size: 17px; }
+  .dashboard-shortcuts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
+  .dashboard-shortcuts .btn { min-height: 28px; padding: 4px 6px; font-size: 10px; white-space: normal; }
+  .dashboard-section-heading h3 { font-size: 13px; }
+  .dashboard-section-heading > a, .dashboard-note { font-size: 10px; }
+  .dashboard-customer-table .reminder-actions > a.btn, .dashboard-customer-table .reminder-actions > button { min-height: 26px; height: 26px; padding: 3px 7px; font-size: 10px; }
+}

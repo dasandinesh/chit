@@ -1,3 +1,5 @@
+import ResponsiveTable from "../ResponsiveTable";
+import PaginatedList from "../PaginatedList";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { getaccount_url, customer_get_url, postcredit_url } from "../url/url";
@@ -111,8 +113,14 @@ const Accountdata = () => {
       credit: creditFormData.credit,
       debit: "0",
     };
-    await axios.post(postcredit_url, payload);
+    try {
+      await axios.post(postcredit_url, payload);
+    } catch (error) {
+      window.alert(error.response?.data?.message || "Unable to save account entry");
+      return;
+    }
     setShowCreditModal(false);
+    fetchData();
   };
 
   const handleDebitSubmit = async () => {
@@ -125,9 +133,16 @@ const Accountdata = () => {
 
       credit: "0",
       debit: debitFormData.debit,
+      transactionType: debitFormData.transactionType || "cash",
     };
-    await axios.post(postcredit_url, payload);
+    try {
+      await axios.post(postcredit_url, payload);
+    } catch (error) {
+      window.alert(error.response?.data?.message || "Unable to save account entry");
+      return;
+    }
     setShowDebitModal(false);
+    fetchData();
   };
 
   const totalCredit = filteredChitData.reduce(
@@ -150,80 +165,14 @@ const Accountdata = () => {
 
   return (
     <div className="container">
-      <br />
-      <Row>
-        <Col>
-          <input
-            type="text"
-            name="memberName"
-            value={filters.memberName}
-            onChange={handleFilterChange}
-            className="form-control"
-            placeholder="Member Name"
-            style={{ width: "200px" }}
-          />
-        </Col>
-        <Col>
-          <input
-            type="date"
-            name="fromDate"
-            value={filters.fromDate}
-            onChange={handleFilterChange}
-            className="form-control"
-          />
-        </Col>
-        <Col>
-          <input
-            type="date"
-            name="toDate"
-            value={filters.toDate}
-            onChange={handleFilterChange}
-            className="form-control"
-          />
-        </Col>
-        <Col>
-          <input
-            type="number"
-            name="minCredit"
-            value={filters.minCredit}
-            onChange={handleFilterChange}
-            className="form-control"
-            placeholder="Min Credit"
-          />
-        </Col>
-        <Col>
-          <input
-            type="number"
-            name="maxCredit"
-            value={filters.maxCredit}
-            onChange={handleFilterChange}
-            className="form-control"
-            placeholder="Max Credit"
-          />
-        </Col>
-        <Col>
-          <input
-            type="number"
-            name="minDebit"
-            value={filters.minDebit}
-            onChange={handleFilterChange}
-            className="form-control"
-            placeholder="Min Debit"
-          />
-        </Col>
-        <Col>
-          <input
-            type="number"
-            name="maxDebit"
-            value={filters.maxDebit}
-            onChange={handleFilterChange}
-            className="form-control"
-            placeholder="Max Debit"
-          />
-        </Col>
-      </Row>{" "}
-      <br />
-      <Row>
+      <div className="page-toolbar compact-toolbar"><h2>Accounts</h2></div>
+      <div className="filter-grid account-filters compact-filter-row">
+        {[{ name: "memberName", label: "Member Name", type: "text" }, { name: "fromDate", label: "From Date", type: "date" }, { name: "toDate", label: "To Date", type: "date" }, { name: "minCredit", label: "Min Credit", type: "number" }, { name: "maxCredit", label: "Max Credit", type: "number" }, { name: "minDebit", label: "Min Debit", type: "number" }, { name: "maxDebit", label: "Max Debit", type: "number" }].map(field => <div key={field.name}>
+          <label htmlFor={`account-filter-${field.name}`}>{field.label}</label>
+          <input id={`account-filter-${field.name}`} type={field.type} name={field.name} value={filters[field.name]} onChange={handleFilterChange} placeholder={field.label} />
+        </div>)}
+      </div>
+      <Row className="account-summary compact-account-summary">
         <Col>
           <h4>Total Credit: {totalCredit}</h4>
         </Col>
@@ -357,7 +306,9 @@ const Accountdata = () => {
         </div>
       )}
       {/* Display filtered data */}
-      <table className="table">
+      <PaginatedList footerPagination items={filteredChitData} label="Accounts" resetKey={JSON.stringify(filters)}>
+      {pageEntries => (
+      <ResponsiveTable mobileCards={false} className="table compact-list-table">
         <thead>
           <tr>
             <th>Member Name</th>
@@ -368,7 +319,7 @@ const Accountdata = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredChitData.map((chit, index) => (
+          {pageEntries.map((chit, index) => (
             <tr key={index}>
               <td>{chit.memberName}</td>
               <td>{chit.date}</td>
@@ -378,7 +329,9 @@ const Accountdata = () => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </ResponsiveTable>
+      )}
+      </PaginatedList>
     </div>
   );
 };

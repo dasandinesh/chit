@@ -1,0 +1,23 @@
+.app-sidebar { --bs-offcanvas-width: 230px; --bs-offcanvas-bg: #172b4d; color: #fff; background: #172b4d !important; }
+.app-sidebar .offcanvas-body { display: flex; flex-direction: column; gap: 20px; padding: 18px 14px; overflow-y: auto; }
+.app-sidebar .offcanvas-title { color: #fff; font-size: 17px; }
+.sidebar-brand { display: none; color: #fff; font-size: 18px; font-weight: 700; padding: 4px 10px 18px; border-bottom: 1px solid #ffffff25; }
+.sidebar-brand:hover { color: #fff; text-decoration: none; }
+.sidebar-links { display: flex; flex-direction: column; gap: 5px; }
+.sidebar-links a { display: block; padding: 9px 12px; color: #d5deef; border-radius: 6px; font-size: 13px; }
+.sidebar-links a:hover, .sidebar-links a.active { background: #ffffff18; color: #fff; text-decoration: none; }
+.sidebar-links a.active { box-shadow: inset 3px 0 #83a2ff; }
+.sidebar-links a:focus-visible, .sidebar-brand:focus-visible { outline: 2px solid #a4bcff; outline-offset: 2px; }
+.sidebar-admin { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid #ffffff25; }
+.sidebar-admin > span { color: #bdcce3; font-size: 11px; overflow-wrap: anywhere; }
+.sidebar-admin > button { width: 100%; min-height: 30px; font-size: 12px; }
+.sidebar-mobile-bar { display: flex; align-items: center; gap: 14px; background: #172b4d; color: #fff; padding: 8px 12px; position: sticky; top: 0; z-index: 1020; }
+.sidebar-mobile-bar > span { font-weight: 650; }
+.sidebar-mobile-bar > button { background: #ffffff18; border-color: #ffffff35; min-height: 30px; padding: 4px 9px; font-size: 12px; }
+@media (min-width: 992px) {
+  .authenticated-shell { padding-left: 230px; }
+  .sidebar-mobile-bar { display: none; }
+  .offcanvas-lg.app-sidebar { position: fixed; inset: 0 auto 0 0; width: 230px; height: 100vh; height: 100dvh; z-index: 1020; border-right: 1px solid #273c60; }
+  .app-sidebar .offcanvas-body { height: 100%; flex-grow: 1; background: #172b4d !important; overflow-y: auto; }
+  .sidebar-brand { display: block; }
+}

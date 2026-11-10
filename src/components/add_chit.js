@@ -1,20 +1,21 @@
+import ResponsiveTable from "./ResponsiveTable";
+import PaginatedList from "./PaginatedList";
 import axios from "axios";
+import { Modal } from "react-bootstrap";
 import { useForm, useFieldArray } from "react-hook-form";
 import { chit_get_url, chit_add_url, customer_get_url } from "./url/url";
 import { useEffect, useState } from "react";
 
+const emptyChit = () => ({
+  chit_det: { chit_name: "", Tolal_amount: "", Due_amount: "", time_preiod: "", frequency: "none", first_due_date: "" },
+  member_list: [{ name: "", member_id: "", share_id: "" }],
+});
+
 const Add_chit = () => {
-  const { register, control, handleSubmit, reset, setValue } = useForm({
-    defaultValues: {
-      chit_det: {
-        chit_name: "",
-        Tolal_amount: "",
-        Due_amount: "",
-        time_preiod: "",
-      },
-      member_list: [{ name: "", member_id: "" }],
-    },
+  const { register, control, handleSubmit, reset, setValue, watch, formState: { isSubmitting } } = useForm({
+    defaultValues: emptyChit(),
   });
+  const scheduled = watch('chit_det.frequency') !== 'none';
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -23,7 +24,23 @@ const Add_chit = () => {
 
   const [customerList, setCustomerList] = useState([]);
   const [chitList, setChitList] = useState([]);
-  const [editChitIndex, setEditChitIndex] = useState(null);
+  const [editChitId, setEditChitId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [notice, setNotice] = useState('');
+  const closeDelete = () => { if (!deleting) { setDeleteTarget(null); setDeleteError(''); } };
+  const deleteChit = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true); setDeleteError('');
+    try {
+      await axios.delete(`${chit_add_url}/${deleteTarget._id}`);
+      setChitList(previous => previous.filter(chit => chit._id !== deleteTarget._id));
+      setNotice('Chit group deleted.'); setDeleteTarget(null);
+    } catch (error) { setDeleteError(error.response?.data?.message || 'Unable to delete chit group. Please retry.'); }
+    finally { setDeleting(false); }
+  };
 
   useEffect(() => {
     fetchCustomerList();
@@ -50,33 +67,51 @@ const Add_chit = () => {
 
   const onSubmit = async (data) => {
     try {
-      if (editChitIndex !== null) {
-        const response = await axios.put(chit_add_url, data); // Assuming you have a proper endpoint for updating chits
+      if (editChitId !== null) {
+        const response = await axios.put(`${chit_add_url}/${editChitId}`, data); // Assuming you have a proper endpoint for updating chits
         console.log("Chit updated:", response.data);
-        setEditChitIndex(null); // Reset edit mode
+
       } else {
         const response = await axios.post(chit_add_url, data);
         console.log("Chit added:", response.data);
       }
-      reset(); // Reset form after submission
-      fetchChitList(); // Refresh chit list after adding or updating
+      setShowForm(false);
+      setEditChitId(null);
+      reset(emptyChit());
+      await fetchChitList();
     } catch (error) {
       console.error("Error while submitting data:", error);
+      window.alert(error.response?.data?.message || "Unable to save chit");
     }
   };
 
-  const onEditChit = (index) => {
-    const chitToEdit = chitList[index];
-    setEditChitIndex(index);
+  const onEditChit = (chitToEdit) => {
+    setEditChitId(chitToEdit._id);
+    setShowForm(true);
     reset({
       chit_det: {
         chit_name: chitToEdit.chit_det.chit_name,
         Tolal_amount: chitToEdit.chit_det.Tolal_amount,
         Due_amount: chitToEdit.chit_det.Due_amount,
         time_preiod: chitToEdit.chit_det.time_preiod,
+        frequency: chitToEdit.chit_det.frequency || 'none',
+        first_due_date: chitToEdit.chit_det.first_due_date || '',
       },
       member_list: chitToEdit.member_list,
     });
+  };
+
+  const openAddForm = () => {
+    setEditChitId(null);
+    reset(emptyChit());
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    if (isSubmitting) return;
+    setShowForm(false);
+    setEditChitId(null);
+    reset(emptyChit());
   };
 
   const customerListId = (index) => `customer-list-${index}`;
@@ -94,43 +129,78 @@ const Add_chit = () => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="page-toolbar compact-toolbar">
+        <div>
+          <h2>Chit Groups</h2>
+          <p>Create groups and manage customer shares.</p>
+        </div>
+        <button type="button" onClick={openAddForm}>+ Add Chit</button>
+      </div>
+      <Modal show={showForm} onHide={closeForm} centered size="lg" className="chit-form-modal" aria-labelledby="chit-form-title" keyboard={!isSubmitting} backdrop={isSubmitting ? "static" : true}>
+        <Modal.Header closeButton={!isSubmitting}>
+          <Modal.Title as="h2" id="chit-form-title">{editChitId ? "Edit Chit" : "Add Chit"}</Modal.Title>
+        </Modal.Header>
+        <form onSubmit={handleSubmit(onSubmit)}>
+        <Modal.Body>
+        <p className="form-hint">Add each customer share as a separate member row.</p>
         <div className="row">
           <div className="col-6">
             <div>
-              <label>Chit Name:</label>
+              <label htmlFor="chit-name">Chit Name:</label>
               <input
+                id="chit-name"
                 {...register("chit_det.chit_name")}
                 placeholder="Chit Name"
               />
             </div>
             <div>
-              <label>Chit Amount:</label>
+              <label htmlFor="chit-total">Chit Amount:</label>
               <input
+                id="chit-total"
                 {...register("chit_det.Tolal_amount")}
                 placeholder="Total Amount"
               />
             </div>
             <div>
-              <label>Due Amount:</label>
+              <label htmlFor="chit-due">Due Amount:</label>
               <input
+                id="chit-due"
                 {...register("chit_det.Due_amount")}
                 placeholder="Due Amount"
               />
             </div>
             <div>
-              <label>Time Preiod:</label>
+              <label htmlFor="chit-period">Total Installments:</label>
               <input
+                id="chit-period"
+                type="number" min="1" max={scheduled ? 1200 : undefined} step="1" required
                 {...register("chit_det.time_preiod")}
-                placeholder="Time Preiod"
+                placeholder="Time Period"
               />
             </div>
+            <div>
+              <label htmlFor="chit-frequency">Schedule</label>
+              <select id="chit-frequency" {...register('chit_det.frequency')}>
+                <option value="none">Manual / No reminder</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            {scheduled && <div>
+              <label htmlFor="chit-first-due">First Due Date</label>
+              <input id="chit-first-due" type="date" required {...register('chit_det.first_due_date')} />
+              <p className="form-hint">Home reminders start one day before each installment. Create installments manually in Chit Master. Monthly dates use the last day when needed.</p>
+            </div>}
           </div>
 
           <div className="col-6">
-            <table>
+            <PaginatedList items={fields} label="Member entry rows">
+            {(pageFields, start) => (
+            <table className="member-entry-table">
               <tbody>
-                {fields.map((item, index) => (
+                {pageFields.map((item, pageIndex) => {
+                  const index = start + pageIndex;
+                  return (
                   <tr key={item.id}>
                     <td>
                       <input
@@ -138,14 +208,9 @@ const Add_chit = () => {
                         placeholder="Member Name"
                         list={customerListId(index)}
                         onChange={(e) => {
+                          setValue(`member_list.${index}.name`, e.target.value);
                           const memberId = getMemberId(e.target.value);
-                          if (memberId) {
-                            // Set member_id value
-                            setValue(
-                              `member_list.${index}.member_id`,
-                              memberId
-                            );
-                          }
+                          setValue(`member_list.${index}.member_id`, memberId);
                         }}
                       />
                       <datalist id={customerListId(index)}>
@@ -160,6 +225,8 @@ const Add_chit = () => {
                         type="hidden"
                         {...register(`member_list.${index}.member_id`)}
                       />
+                      <input type="hidden" {...register(`member_list.${index}.share_id`)} />
+                      <span> Share {index + 1}</span>
                     </td>
                     <td>
                       <button type="button" onClick={() => remove(index)}>
@@ -167,21 +234,41 @@ const Add_chit = () => {
                       </button>
                     </td>
                   </tr>
-                ))}
+                );
+                })}
               </tbody>
             </table>
+            )}
+            </PaginatedList>
             <button type="button" onClick={onAddProduct}>
               Add Member
             </button>
           </div>
         </div>
-        <button type="submit">Submit</button>
-      </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <button type="button" className="btn-secondary" onClick={closeForm} disabled={isSubmitting}>Cancel</button>
+          <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Saving..." : "Submit"}</button>
+        </Modal.Footer>
+        </form>
+      </Modal>
 
+      {notice && <p role="status" className="success-notice">{notice}</p>}
+      <Modal show={!!deleteTarget} onHide={closeDelete} centered className="chit-form-modal" aria-labelledby="delete-chit-title" backdrop={deleting ? 'static' : true} keyboard={!deleting}>
+        <Modal.Header closeButton={!deleting}><Modal.Title as="h2" id="delete-chit-title">Delete Chit Group</Modal.Title></Modal.Header>
+        <Modal.Body>
+          {deleteError && <p role="alert" className="form-error">{deleteError}</p>}
+          <p>Delete <strong>{deleteTarget?.chit_det.chit_name}</strong> and its {deleteTarget?.member_list.length} share memberships?</p>
+          <p className="form-hint">This removes the group from Chit List and stops its schedule reminders. Customers, deleted installments and payment history are kept. Only active Chit Master records prevent deletion. Restoring an installment brings its group back.</p>
+        </Modal.Body>
+        <Modal.Footer><button className="btn-secondary" disabled={deleting} onClick={closeDelete}>Cancel</button><button className="btn-danger-soft" disabled={deleting} onClick={deleteChit}>{deleting ? 'Deleting...' : 'Delete Group'}</button></Modal.Footer>
+      </Modal>
       {/* Display Chit List */}
       <div>
-        <h2>Chit List</h2>
-        <table>
+        <h2 className="compact-section-title">Chit List</h2>
+        <PaginatedList footerPagination items={chitList} label="Chit groups">
+        {pageChits => (
+        <ResponsiveTable mobileCards={false} className="compact-list-table">
           <thead>
             <tr>
               <th>Chit Name</th>
@@ -189,31 +276,38 @@ const Add_chit = () => {
               <th>Due Amount</th>
               <th>Time Period</th>
               <th>Members</th>
-              <th>Actions</th> {/* Add Actions column */}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {chitList.map((chit, index) => (
-              <tr key={index}>
+            {pageChits.map((chit) => (
+              <tr key={chit._id}>
                 <td>{chit.chit_det.chit_name}</td>
                 <td>{chit.chit_det.Tolal_amount}</td>
                 <td>{chit.chit_det.Due_amount}</td>
                 <td>{chit.chit_det.time_preiod}</td>
                 <td>
+                  <details><summary>{chit.member_list.length} shares</summary>
+                  <PaginatedList items={chit.member_list} label={`${chit.chit_det.chit_name} shares`}>
+                  {(pageMembers, start) => (
                   <ul>
-                    {chit.member_list.map((member, memIndex) => (
-                      <li key={memIndex}>{member.name}</li>
+                    {pageMembers.map((member, memIndex) => (
+                      <li key={member.share_id || memIndex}>{member.name} — Share {start + memIndex + 1}</li>
                     ))}
                   </ul>
+                  )}
+                  </PaginatedList>
+                  </details>
                 </td>
                 <td>
-                  <button onClick={() => onEditChit(index)}>Edit</button>{" "}
-                  {/* Add edit button */}
+                  <div className="table-actions"><button onClick={() => onEditChit(chit)}>Edit</button><button className="btn-danger-soft" onClick={() => { setDeleteError(''); setNotice(''); setDeleteTarget(chit); }}>Delete</button></div>
                 </td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </ResponsiveTable>
+        )}
+        </PaginatedList>
       </div>
     </div>
   );

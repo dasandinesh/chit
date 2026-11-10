@@ -1,11 +1,14 @@
+import ResponsiveTable from "./ResponsiveTable";
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { chitdue_amount_update_url, dueamountunwind_url } from "./url/url";
-import ReactPaginate from "react-paginate";
+import PaginatedList from "./PaginatedList";
+import { paymentReference } from "./PaymentHistory";
 import "./chit.css"; // Import CSS file for styling
 
 const Chit = () => {
   const [PaidAmount, SetPaidAmount] = useState("");
+  const [reference, setReference] = useState("");
   const [oldPaidAmount, SetoldPaidAmount] = useState("");
   const [chitduememberlist, setChitduememberlist] = useState([]);
   const [pendingAmount, SetpendingAmount] = useState("");
@@ -22,9 +25,7 @@ const Chit = () => {
   });
   const [selectedMember, setSelectedMember] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [pageNumber, setPageNumber] = useState(0);
-  const [itemsPerPage] = useState(500); // Removed unused state
-  const [todaydate, settodaydate] = useState("");
+  
   const [selecttodaydate, setselecttodaydate] = useState("");
   const [totalPaidAmount, setTotalPaidAmount] = useState(0);
   const [totalPendingAmount, setTotalPendingAmount] = useState(0);
@@ -54,7 +55,7 @@ const Chit = () => {
   useEffect(() => {
     getchitduememberlist();
     const today = new Date().toISOString().split("T")[0];
-    settodaydate(today);
+
     setselecttodaydate(today);
   }, []);
 
@@ -93,9 +94,11 @@ const Chit = () => {
     try {
       const payload = {
         id: selectedMember._id,
+        reference,
         paidamount: totallpaid,
         amount: pendingAmount,
         memberId: selectedMember.member.member_id,
+        share_id: selectedMember.member.share_id,
         paidStatus: selectedOption,
         amount_date: selecttodaydate,
         current_paid_amount: PaidAmount,
@@ -107,87 +110,41 @@ const Chit = () => {
       getchitduememberlist();
     } catch (error) {
       console.error("Error updating member:", error);
+      window.alert(error.response?.data?.message || "Unable to record payment");
     }
   };
 
   const openModal = (member) => {
     setSelectedMember(member);
+    setReference(paymentReference());
+    SetPaidAmount("");
+    SetpendingAmount(member.member.pending_amount);
+    setSelectedOption(member.member.paidStatus);
     SetoldpendingAmount(member.member.pending_amount);
     SetoldPaidAmount(member.member.paid_amount);
     setShowModal(true);
   };
 
-  const indexOfLastItem = (pageNumber + 1) * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredChitduememberlist.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-
-  const handlePageChange = ({ selected }) => {
-    setPageNumber(selected);
-  };
-
-  const pageCount = Math.ceil(filteredChitduememberlist.length / itemsPerPage);
-
   const pendingcal = (e) => {
     SetPaidAmount(e);
+    setReference(paymentReference());
     const pending = oldpendingAmount - e;
     SetpendingAmount(pending);
   };
   return (
     <div>
-      <h5>Due List</h5>
-      <div>
-        <input
-          type="text"
-          name="name"
-          placeholder="Filter by Name"
-          value={filters.name}
-          onChange={handleFilterChange}
-        />
-        <input
-          type="text"
-          name="chitName"
-          placeholder="Filter by Chit Name"
-          value={filters.chitName}
-          onChange={handleFilterChange}
-        />
-        <input
-          type="date"
-          name="date"
-          placeholder="Filter by Date"
-          onChange={handleFilterChange}
-        />
-        <input
-          type="text"
-          name="chitList"
-          placeholder="Filter by Chit List"
-          value={filters.chitList}
-          onChange={handleFilterChange}
-        />
-        <select
-          name="paidStatus"
-          onChange={handleFilterChange}
-          value={filters.paidStatus}
-        >
-          <option value="">All</option>
-          <option value="paid">Paid</option>
-          <option value="not paid">Not paid</option>
-        </select>
+      <div className="page-toolbar compact-toolbar"><h2>Due List</h2></div>
+      <div className="filter-grid compact-filter-row">
+        {[{ name: "name", label: "Customer Name", type: "text" }, { name: "chitName", label: "Chit Name", type: "text" }, { name: "date", label: "Due Date", type: "date" }, { name: "chitList", label: "List / Installment", type: "text" }].map(field => <div key={field.name}>
+          <label htmlFor={`due-filter-${field.name}`}>{field.label}</label>
+          <input id={`due-filter-${field.name}`} type={field.type} name={field.name} value={filters[field.name]} onChange={handleFilterChange} placeholder={field.label} />
+        </div>)}
+        <div><label htmlFor="due-filter-status">Payment Status</label><select id="due-filter-status" name="paidStatus" onChange={handleFilterChange} value={filters.paidStatus}><option value="">All</option><option value="paid">Paid</option><option value="not paid">Not Paid</option></select></div>
       </div>
 
-      <table className="table-wrapper">
-        <tr>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td>{totalPaidAmount}</td>
-          <td>{totalPendingAmount}</td>
-          <td></td>
-        </tr>
+      <PaginatedList footerPagination items={[...filteredChitduememberlist].reverse()} label="Due list" resetKey={JSON.stringify(filters)}>
+      {pageMembers => (
+      <ResponsiveTable mobileCards={false} className="table-wrapper compact-list-table">
         <thead>
           <tr>
             <th>Member Name</th>
@@ -201,10 +158,7 @@ const Chit = () => {
           </tr>
         </thead>
         <tbody>
-          {currentItems
-            .slice()
-            .reverse()
-            .map((member, index) => {
+          {pageMembers.map((member, index) => {
               console.log(
                 member.member.name,
                 ">>>",
@@ -213,7 +167,7 @@ const Chit = () => {
 
               return (
                 <tr key={index}>
-                  <td>{member.member.name}</td>
+                  <td>{member.member.name} — Share {member.member.share_number}</td>
                   <td>{member.chit_name}</td>
                   <td>{member.chit_list}</td>
                   <td>{member.date}</td>
@@ -232,28 +186,17 @@ const Chit = () => {
               );
             })}
         </tbody>
-      </table>
+      </ResponsiveTable>
 
-      {/* Pagination */}
-      <ReactPaginate
-        previousLabel={"Previous"}
-        nextLabel={"Next"}
-        breakLabel={"..."}
-        breakClassName={"break-me"}
-        pageCount={pageCount}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={5}
-        onPageChange={handlePageChange}
-        containerClassName={"pagination"}
-        subContainerClassName={"pages pagination"}
-        activeClassName={"active"}
-      />
+      )}
+      </PaginatedList>
 
       {/* Modal */}
       {showModal && (
         <div className="modal">
           <div className="modal-content">
             <h2>Pay Amount</h2>
+            <p>{selectedMember.member.name} — Share {selectedMember.member.share_number}</p>
             <input
               type="text"
               value={PaidAmount}
@@ -268,8 +211,8 @@ const Chit = () => {
               />
               <input
                 type="date"
-                value={todaydate}
-                onChange={(e) => setselecttodaydate(e.target.value)}
+                value={selecttodaydate}
+                onChange={(e) => { setselecttodaydate(e.target.value); setReference(paymentReference()); }}
               />
             </div>
             <div>
@@ -306,7 +249,7 @@ const Chit = () => {
       )}
 
       {/* Display Total Paid and Pending Amount */}
-      <div>
+      <div className="due-totals">
         <p>Total Paid Amount: {totalPaidAmount}</p>
         <p>Total Pending Amount: {totalPendingAmount}</p>
       </div>
